@@ -23,9 +23,7 @@ class BC_Buffer
 		size_t size;
 		void **buffer;
 		BC_Logger *logger;
-
-		HANDLE mutex_lock;    /* Mutual exclusion lock */
-
+		HANDLE mutex_lock;            /* Mutual exclusion lock */
 		HANDLE sem_available;         /* Number of available slots in buffer */
 		HANDLE sem_unavailable;       /* Number of unavailable slots in buffer */
 
@@ -36,8 +34,6 @@ class BC_Buffer
 		BC_Buffer(size_t, BC_Logger*);
 		virtual ~BC_Buffer();
 
-		int isFull();
-		int isEmpty();
 		void insert(void*);
 		void *remove();
 };

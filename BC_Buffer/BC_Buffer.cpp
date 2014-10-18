@@ -25,36 +25,13 @@ BC_Buffer::BC_Buffer(size_t size, BC_Logger *logger)
 
 BC_Buffer::~BC_Buffer()
 {
+	int i;
+	for(i = first; i < last; i++)
+		free(buffer[i % size]);
 	free(buffer);
 	CloseHandle(mutex_lock);
 	CloseHandle(sem_available);
 	CloseHandle(sem_unavailable);
-}
-
-/**
- * Checks if the buffer is full.
- * Returns 1 if the buffer is full, otherwise 0
- */
-int BC_Buffer::isFull()
-{
-	int result = 0;
-	WaitForSingleObject(mutex_lock, INFINITE);
-	if((last - first) == size)
-		result = 1;
-	ReleaseMutex(mutex_lock);
-
-	return result;
-}
-
-int BC_Buffer::isEmpty()
-{
-	int result = 0;
-	WaitForSingleObject(mutex_lock, INFINITE);
-	if((last - first == 0))
-		result = 1;
-	ReleaseMutex(mutex_lock);
-
-	return result;
 }
 
 void BC_Buffer::insert(void *item)
@@ -96,6 +73,7 @@ void *BC_Buffer::remove_internal()
 	char *event = (char*) calloc(60, sizeof(char));
 	WaitForSingleObject(mutex_lock, INFINITE);
 	item = buffer[first % size];
+	buffer[first % size] = NULL;
 	first++;
 	f = first;
 	l = last;
