@@ -3,6 +3,6 @@ Debug/
 .settings/
 .cproject
 .project
-.vcxproj
-.filters
-.user
+*.vcxproj
+*.vcxproj.*
+log.txt
