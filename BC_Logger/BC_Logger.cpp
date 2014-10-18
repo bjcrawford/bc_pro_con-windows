@@ -23,12 +23,16 @@ BC_Logger::~BC_Logger()
 	CloseHandle(mutex_lock);
 }
 
+/**
+ * Event can be at most 65 char
+ *
+*/
 int BC_Logger::log_event(const char event[])
 {
 	/* String to hold date and time (date and time string) */
 	char *pDts = (char*) calloc(25, sizeof(char));
 	/* String to hold date, time, microseconds, and event (full string) */
-	int pFs_size = 25 + strlen(event) + 1;
+	int pFs_size = 80;
 	char *pFs = (char*) calloc(pFs_size, sizeof(char));
 
 	/* Get time and date */
