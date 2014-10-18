@@ -1,0 +1,8 @@
+Release/
+Debug/
+.settings/
+.cproject
+.project
+.vcxproj
+.filters
+.user
