@@ -29,18 +29,18 @@ BC_Logger::~BC_Logger()
 */
 int BC_Logger::log_event(const char event[])
 {
-	/* String to hold date and time (date and time string) */
-	char *pDts = (char*) calloc(25, sizeof(char));
+	/* String to hold date and time (date/time string) */
+	char *dts = (char*) calloc(25, sizeof(char));
 	/* String to hold date, time, microseconds, and event (full string) */
-	int pFs_size = 80;
-	char *pFs = (char*) calloc(pFs_size, sizeof(char));
+	int fs_size = 80;
+	char *fs = (char*) calloc(fs_size, sizeof(char));
 
 	/* Get time and date */
 	SYSTEMTIME systemtime;
 	GetLocalTime(&systemtime);
 
 	sprintf_s(
-		pDts, 
+		dts, 
 		25, 
 		"%d-%02d-%02d %02d:%02d:%02d:%03d ", 
 		systemtime.wYear,
@@ -52,18 +52,18 @@ int BC_Logger::log_event(const char event[])
 		systemtime.wMilliseconds);
 
 	/* Build the string to insert in log file */
-	strcpy_s(pFs, pFs_size, pDts);
-	strcat_s(pFs, pFs_size, event);
-	strcat_s(pFs, pFs_size, "\n");
+	strcpy_s(fs, fs_size, dts);
+	strcat_s(fs, fs_size, event);
+	strcat_s(fs, fs_size, "\n");
 
 	/* Write event to log file */
 	WaitForSingleObject(mutex_lock, INFINITE);
-	fwrite(pFs, sizeof(char), strlen(pFs), lfp);
+	fwrite(fs, sizeof(char), strlen(fs), lfp);
 	ReleaseMutex(mutex_lock);
 
 	/* Free all dynamically allocated memory */
-	free(pDts);
-	free(pFs);
+	free(dts);
+	free(fs);
 
 	// TODO: handle any possible errors
 	return 1;
