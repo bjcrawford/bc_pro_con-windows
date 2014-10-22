@@ -1,22 +1,34 @@
-/* File: BC_Logger.cpp
-   Author: Brett Crawford
-   Date: 2014-
-   Prof: Kwatny
-   TAs: Liang and Casey
-   Course: CIS 3207, Sec 2
-   Description:
+/**
+ * @file BC_Logger.cpp 
+ * @author Brett Crawford
+ * @brief A shared, event logging class
+ * @details
+ *  Course: CIS 3207, Sec 2
+ *  Prof: Kwatny
+ *  TAs: Liang and Casey
+ *  Date: 2014-10-18
+ *  Description: A shared, event logging class. This class is written for 
+ *  use with windows.
 */
-
+ 
 using namespace std;
 
 #include "BC_Logger.hpp"
 
+/**
+ * Constructs a shared, event logger object. 
+ * 
+ * @param[in] log_file The name of the log file in which to record events
+*/
 BC_Logger::BC_Logger(const char log_file[])
 {
 	fopen_s(&lfp, log_file, "a");
 	mutex_lock = CreateMutex(NULL, FALSE, NULL);
 }
 
+/**
+ * Destroys a shared, event logger object. 
+*/
 BC_Logger::~BC_Logger()
 {
 	fclose(lfp);
@@ -24,10 +36,11 @@ BC_Logger::~BC_Logger()
 }
 
 /**
- * Event can be at most 65 char
+ * Records an event within the log. The event can be at most 65 characters.
  *
-*/
-int BC_Logger::log_event(const char event[])
+ * @param[in] event The event to be logged
+ * @param Returns 1 on success, otherwise 0
+*/int BC_Logger::log_event(const char event[])
 {
 	/* String to hold date and time (date/time string) */
 	char *dts = (char*) calloc(25, sizeof(char));
