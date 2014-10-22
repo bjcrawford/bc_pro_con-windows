@@ -36,7 +36,8 @@ BC_Consumer::BC_Consumer(int id, BC_Buffer *buffer, BC_Logger *logger)
 */
 BC_Consumer::~BC_Consumer()
 {
-
+	this->buffer = NULL;
+	this->logger = NULL;
 }
 
 /**
