@@ -48,7 +48,8 @@ void BC_Consumer::consume()
 {
 	char *event = (char*) calloc(65, sizeof(char));
 	void *item = buffer->remove();
-	sprintf_s(event, 65, "Consumer %d: %d removed from buffer", this->id, *(int*)item);
+	sprintf_s(event, 65, "Consumer %d: %d consumed from buffer", 
+		      this->id, *(int*)item);
 	logger->log_event(event);
 	free(event);
 }
