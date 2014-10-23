@@ -50,7 +50,7 @@ void BC_Producer::produce()
 {
 	char *event = (char*) calloc(65, sizeof(char));
 	int *item = (int*) calloc(1, sizeof(int));
-	srand(clock() * time(NULL));
+	srand((unsigned int) (clock() * time(NULL)));
 	*item = rand() % 10000;
 	int temp = *item;
 	buffer->insert((void*) item);

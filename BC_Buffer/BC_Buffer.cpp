@@ -79,7 +79,7 @@ void BC_Buffer::insert(void *item)
 void BC_Buffer::insert_internal(void *item)
 {
 	int l;
-	int temp = *(int*) item
+	int temp = *(int*) item;
 	char *event = (char*) calloc(65, sizeof(char));
 	WaitForSingleObject(mutex_insert_lock, INFINITE);
 	buffer[last % size] = item;
