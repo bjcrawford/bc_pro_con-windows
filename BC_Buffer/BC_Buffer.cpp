@@ -18,7 +18,9 @@ using namespace std;
 #include "BC_Buffer.hpp"
 
 /**
- * Constructs a shared, bounded buffer object. 
+ * Constructs a shared, bounded buffer object. The buffer can hold elements
+ * of type void* meaning the elements should be allocated on the heap before 
+ * insertion into the buffer.
  * 
  * @param[in] size The max number of elements in buffer
  * @param[in] logger A pointer to the shared logger
