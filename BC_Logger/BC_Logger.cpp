@@ -71,7 +71,9 @@ BC_Logger::~BC_Logger()
 
 	/* Write event to log file */
 	WaitForSingleObject(mutex_lock, INFINITE);
+	/** CRITICAL SECTION ENTRY */
 	fwrite(fs, sizeof(char), strlen(fs), lfp);
+	/** CRITICAL SECTION EXIT */
 	ReleaseMutex(mutex_lock);
 
 	/* Free all dynamically allocated memory */
