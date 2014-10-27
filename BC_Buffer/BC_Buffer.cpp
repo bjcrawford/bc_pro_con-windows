@@ -27,7 +27,7 @@ using namespace std;
 */
 BC_Buffer::BC_Buffer(size_t size, BC_Logger *logger)
 {
-	first = last = 0;
+	firstFilled = nextEmpty = 0;
 	this->size = size;
 	this->logger = logger;
 	buffer = (void**) calloc(this->size, sizeof(void*));
@@ -45,7 +45,7 @@ BC_Buffer::~BC_Buffer()
 	size_t i;
 	WaitForSingleObject(mutex_insert_lock, INFINITE);
 	WaitForSingleObject(mutex_remove_lock, INFINITE);
-	for(i = first; i < last; i++)
+	for(i = firstFilled; i < nextEmpty; i++)
 		free(buffer[i % size]);
 	free(buffer);
 	CloseHandle(mutex_insert_lock);
@@ -56,81 +56,63 @@ BC_Buffer::~BC_Buffer()
 
 /**
  * Inserts an element in the buffer. If the buffer is full, this call will
- * block until the insert can be performed. 
+ * block until the insert can be performed or if the shared insert data of 
+ * the buffer is currently in use.
  *
  * @param[in] item A void pointer to the element to be inserted
 */
 void BC_Buffer::insert(void *item)
-{
-	
+{	
+	int l;
+	int temp = *(int*) item;
+	char *event = (char*) calloc(65, sizeof(char));
+
 	WaitForSingleObject(sem_available, INFINITE);
-	this->insert_internal(item);
+	WaitForSingleObject(mutex_insert_lock, INFINITE);
+
+	/** CRITICAL SECTION ENTRY */
+	buffer[nextEmpty % size] = item;
+	nextEmpty++;
+	l = nextEmpty;
+	sprintf_s(event, 65, "Buffer: %d inserted            nextEmpty: %d", 
+		      temp, l);
+	logger->log_event(event);
+	free(event);
+	/** CRITICAL SECTION EXIT */
+
+	ReleaseMutex(mutex_insert_lock);
 	ReleaseSemaphore(sem_unavailable, 1, NULL);
 }
 
 /**
- * For internal class use only. Inserts an element in the buffer. If this 
- * method has been called, the buffer is guaranteed to be in a not full 
- * state. This call will block if the shared data of the buffer is currently
- * in use.  
- *
- * @param[in] item A void pointer to the element to be inserted
-*/
-void BC_Buffer::insert_internal(void *item)
-{
-	int l;
-	int temp = *(int*) item;
-	char *event = (char*) calloc(65, sizeof(char));
-	WaitForSingleObject(mutex_insert_lock, INFINITE);
-	buffer[last % size] = item;
-	last++;
-	l = last;
-	ReleaseMutex(mutex_insert_lock);
-	sprintf_s(event, 65, "Buffer: %d inserted                 last: %d", 
-		      temp, l);
-	logger->log_event(event);
-	free(event);
-}
-
-/**
  * Removes an element from the buffer. If the buffer is empty, this call will
- * block until the remove can be performed. 
+ * block until the remove can be performed or if the shared remove data of the 
+ * buffer is currently in use.  
  *
  * @return A void pointer to the element removed from the buffer
 */
 void *BC_Buffer::remove()
 {
+	int f;
+	void *item;
+	char *event = (char*) calloc(65, sizeof(char));
+
 	WaitForSingleObject(sem_unavailable, INFINITE);
-	void *item = this->remove_internal();
+	WaitForSingleObject(mutex_remove_lock, INFINITE);
+
+	/** CRITICAL SECTION ENTRY */
+	item = buffer[firstFilled % size];
+	buffer[firstFilled % size] = NULL;
+	firstFilled++;
+	f = firstFilled;
+	sprintf_s(event, 65, "Buffer: %d removed           firstFilled: %d", 
+		      *(int*)item, f);
+	logger->log_event(event);
+	free(event);
+	/** CRITICAL SECTION EXIT */
+
+	ReleaseMutex(mutex_remove_lock);
 	ReleaseSemaphore(sem_available, 1, NULL);
 
 	return item;
 }
-
-/**
- * For internal class use only. Removes an element from the buffer. If this 
- * method has been called, the buffer is guaranteed to be in a not empty 
- * state. This call will block if the shared data of the buffer is currently
- * in use.  
- *
- * @return A void pointer to the element removed from the buffer
-*/
-void *BC_Buffer::remove_internal()
-{
-	int f;
-	void *item;
-	char *event = (char*) calloc(65, sizeof(char));
-	WaitForSingleObject(mutex_remove_lock, INFINITE);
-	item = buffer[first % size];
-	buffer[first % size] = NULL;
-	first++;
-	f = first;
-	ReleaseMutex(mutex_remove_lock);
-	sprintf_s(event, 65, "Buffer: %d removed                 first: %d", 
-		      *(int*)item, f);
-	logger->log_event(event);
-	free(event);
-
-	return item;
-}
-
