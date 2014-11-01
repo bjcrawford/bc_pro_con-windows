@@ -13,8 +13,6 @@
  *  This class is written for use with windows.
 */
 
-using namespace std;
-
 #include "BC_Buffer.hpp"
 
 /**
@@ -25,14 +23,14 @@ using namespace std;
  * @param[in] size The max number of elements in buffer
  * @param[in] logger A pointer to the shared logger
 */
-BC_Buffer::BC_Buffer(size_t size, BC_Logger *logger)
+BC_Buffer::BC_Buffer(size_t size, BC_Logger *logger, size_t visual)
 {
 	firstFilled = nextEmpty = 0;
 	this->size = size;
 	this->logger = logger;
+	this->visual = visual;
 	buffer = (void**) calloc(this->size, sizeof(void*));
-	mutex_insert_lock = CreateMutex(NULL, FALSE, NULL);
-	mutex_remove_lock = CreateMutex(NULL, FALSE, NULL);
+	mutex_lock = CreateMutex(NULL, FALSE, NULL);
 	sem_available = CreateSemaphore(NULL, this->size, this->size, NULL);
 	sem_unavailable = CreateSemaphore(NULL, 0, this->size, NULL);
 }
@@ -43,13 +41,11 @@ BC_Buffer::BC_Buffer(size_t size, BC_Logger *logger)
 BC_Buffer::~BC_Buffer()
 {
 	size_t i;
-	WaitForSingleObject(mutex_insert_lock, INFINITE);
-	WaitForSingleObject(mutex_remove_lock, INFINITE);
+	WaitForSingleObject(mutex_lock, INFINITE);
 	for(i = firstFilled; i < nextEmpty; i++)
 		free(buffer[i % size]);
 	free(buffer);
-	CloseHandle(mutex_insert_lock);
-	CloseHandle(mutex_remove_lock);
+	CloseHandle(mutex_lock);
 	CloseHandle(sem_available);
 	CloseHandle(sem_unavailable);
 }
@@ -63,24 +59,24 @@ BC_Buffer::~BC_Buffer()
 */
 void BC_Buffer::insert(void *item)
 {	
-	int l;
 	int temp = *(int*) item;
-	char *event = (char*) calloc(65, sizeof(char));
+	char numStr[5];
+	std::string event = "";
 
 	WaitForSingleObject(sem_available, INFINITE);
-	WaitForSingleObject(mutex_insert_lock, INFINITE);
+	WaitForSingleObject(mutex_lock, INFINITE);
 
 	/** CRITICAL SECTION ENTRY */
 	buffer[nextEmpty % size] = item;
 	nextEmpty++;
-	l = nextEmpty;
-	sprintf_s(event, 65, "Buffer: %d inserted            nextEmpty: %d", 
-		      temp, l);
-	logger->log_event(event);
-	free(event);
+	sprintf_s(numStr, 3, "%2d", temp);
+	event += std::string("Buffer: ") + numStr + " inserted";
+	if(visual)
+		event += ", " + getBufferStr();
+	logger->log_event(event.c_str());
 	/** CRITICAL SECTION EXIT */
 
-	ReleaseMutex(mutex_insert_lock);
+	ReleaseMutex(mutex_lock);
 	ReleaseSemaphore(sem_unavailable, 1, NULL);
 }
 
@@ -93,26 +89,49 @@ void BC_Buffer::insert(void *item)
 */
 void *BC_Buffer::remove()
 {
-	int f;
 	void *item;
-	char *event = (char*) calloc(65, sizeof(char));
+	char numstr[5];
+	std::string event = "";
 
 	WaitForSingleObject(sem_unavailable, INFINITE);
-	WaitForSingleObject(mutex_remove_lock, INFINITE);
+	WaitForSingleObject(mutex_lock, INFINITE);
 
 	/** CRITICAL SECTION ENTRY */
 	item = buffer[firstFilled % size];
 	buffer[firstFilled % size] = NULL;
 	firstFilled++;
-	f = firstFilled;
-	sprintf_s(event, 65, "Buffer: %d removed           firstFilled: %d", 
-		      *(int*)item, f);
-	logger->log_event(event);
-	free(event);
+	sprintf_s(numstr, 3, "%2d", *(int*)item);
+	event += std::string("Buffer: ") + numstr + " removed";
+	if(visual)
+		event += ",  " + getBufferStr();
+	logger->log_event(event.c_str());
 	/** CRITICAL SECTION EXIT */
 
-	ReleaseMutex(mutex_remove_lock);
+	ReleaseMutex(mutex_lock);
 	ReleaseSemaphore(sem_available, 1, NULL);
 
 	return item;
+}
+
+/**
+ * Returns a string containing a visualized representation of the buffer.
+ *
+ * @return A string containing the contents of the buffer
+*/
+std::string BC_Buffer::getBufferStr()
+{
+	size_t i;
+	char numstr[5];
+	std::string str = "State: ";
+	for(i = 0; i < size; i++)
+	{
+		if(buffer[i] != NULL)
+			sprintf_s(numstr, 3, "%2d", *(int*)buffer[i]);
+		else
+			sprintf_s(numstr, 3, "%s", "--");
+		str += "| " + std::string(numstr) + " ";
+	}
+	str += "|";
+
+	return str;
 }

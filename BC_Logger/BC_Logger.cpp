@@ -10,8 +10,6 @@
  *  Description: A shared, event logging class. This class is written for 
  *  use with windows.
 */
- 
-using namespace std;
 
 #include "BC_Logger.hpp"
 
@@ -36,7 +34,7 @@ BC_Logger::~BC_Logger()
 }
 
 /**
- * Records an event within the log. The event can be at most 65 characters.
+ * Records an event within the log. The event can be at most 200 characters.
  *
  * @param[in] event The event to be logged
  * @param Returns 1 on success, otherwise 0
@@ -45,7 +43,7 @@ BC_Logger::~BC_Logger()
 	/* String to hold date and time (date/time string) */
 	char *dts = (char*) calloc(25, sizeof(char));
 	/* String to hold date, time, microseconds, and event (full string) */
-	int fs_size = 80;
+	int fs_size = 215;
 	char *fs = (char*) calloc(fs_size, sizeof(char));
 
 	/* Get time and date */

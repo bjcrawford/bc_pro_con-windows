@@ -10,8 +10,8 @@
  *  Description: The header for the consumer class.
 */
 
-#ifndef BC_CONSUMER_H_
-#define BC_CONSUMER_H_
+#ifndef BC_CONSUMER_HPP_
+#define BC_CONSUMER_HPP_
 
 #include "../BC_Buffer/BC_Buffer.hpp"
 #include "../BC_Logger/BC_Logger.hpp"
@@ -35,4 +35,4 @@ class BC_Consumer
 		void consume();
 };
 
-#endif /* BC_CONSUMER_H_ */
+#endif /* BC_CONSUMER_HPP_ */

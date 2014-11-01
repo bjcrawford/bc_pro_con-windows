@@ -13,8 +13,6 @@
  *  and consumers. This class is written for use with windows.
 */
 
-using namespace std;
-
 #include "BC_Producer.hpp"
 
 /**
@@ -50,11 +48,13 @@ void BC_Producer::produce()
 {
 	char *event = (char*) calloc(65, sizeof(char));
 	int *item = (int*) calloc(1, sizeof(int));
-	srand((unsigned int) (clock() * time(NULL)));
-	*item = rand() % 10000;
+	std::random_device rd;   
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dist(0,99);
+	*item = dist(gen);
 	int temp = *item;
 	buffer->insert((void*) item);
-	sprintf_s(event, 65, "Producer %d: %d produced into buffer", 
+	sprintf_s(event, 65, "Pro  %d: %d produced", 
 		      this->id, temp);
 	logger->log_event(event);
 	free(event);

@@ -11,8 +11,8 @@
 */
 
 
-#ifndef BC_LOGGER_H_
-#define BC_LOGGER_H_
+#ifndef BC_LOGGER_HPP_
+#define BC_LOGGER_HPP_
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,4 +35,4 @@ class BC_Logger
 		int log_event(const char[]);
 };
 
-#endif /* BC_LOGGER_H_ */
+#endif /* BC_LOGGER_HPP_ */
