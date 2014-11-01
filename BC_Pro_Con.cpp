@@ -59,7 +59,6 @@ int main(int argc, char **argv)
 {
 	size_t i;                /**< Iteration variable */
 	size_t buffer_size;      /**< Size of the buffer */
-	size_t visual;           /**< A flag to enable buffer visualization */
 	size_t num_producers;    /**< Number of producers */
 	size_t num_consumers;    /**< Number of consumers */
 	size_t num_productions;  /**< Number of productions each producer makes */
@@ -155,9 +154,9 @@ int main(int argc, char **argv)
 	delete(consumer);
 	free(pro_threads);
 	free(con_threads);
-	
+
 	std::cout << "Log results saved in file " << log_file << "\n";
-	
+
 	std::cout << "Main thread finished\n";
 
 	return EXIT_SUCCESS;
@@ -230,7 +229,7 @@ DWORD WINAPI consume(LPVOID args)
 		Sleep(c_args->delay);
 		c_args->consumer->consume();
 	}
-	free(c_args)
+	free(c_args);
 
 	return 0;
 }
