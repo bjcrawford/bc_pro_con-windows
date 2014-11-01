@@ -5,4 +5,4 @@ Debug/
 .project
 *.vcxproj
 *.vcxproj.*
-log.txt
+log*.txt

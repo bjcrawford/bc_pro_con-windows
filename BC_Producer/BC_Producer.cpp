@@ -54,7 +54,7 @@ void BC_Producer::produce()
 	*item = dist(gen);
 	int temp = *item;
 	buffer->insert((void*) item);
-	sprintf_s(event, 65, "Pro  %d: %d produced", this->id, temp);
+	sprintf_s(event, 65, "Pro %2d: %2d produced", this->id, temp);
 	logger->log_event(event);
 	free(event);
 }
