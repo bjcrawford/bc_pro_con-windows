@@ -13,8 +13,6 @@
  *  and consumers. This class is written for use with windows.
 */
 
-using namespace std;
-
 #include "BC_Consumer.hpp"
 
 /**
@@ -46,11 +44,11 @@ BC_Consumer::~BC_Consumer()
 */
 void BC_Consumer::consume()
 {
-	char *event = (char*) calloc(65, sizeof(char));
+	char *event = (char*) calloc(25, sizeof(char));
 	void *item = buffer->remove();
-	sprintf_s(event, 65, "Con  %d: %d consumed", 
-		      this->id, *(int*)item);
+	sprintf_s(event, 25, "Con  %d: %d consumed", this->id, *(int*)item);
 	logger->log_event(event);
 	free(event);
+	free(item);
 }
 

@@ -36,7 +36,7 @@ class BC_Buffer
 		size_t visual;           /**< A flag to visualize buffer in event log */
 		void **buffer;           /**< An array of void pointers */
 		BC_Logger *logger;       /**< A pointer to the shared logger */
-		HANDLE mutex_lock;       /**< Mutex lock for buffe access */
+		HANDLE mutex_lock;       /**< Mutex lock for buffer access */
 		HANDLE sem_available;    /**< Number of available slots in buffer */
 		HANDLE sem_unavailable;  /**< Number of unavailable slots in buffer */
 

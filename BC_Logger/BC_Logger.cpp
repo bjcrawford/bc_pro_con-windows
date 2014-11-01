@@ -40,6 +40,9 @@ BC_Logger::~BC_Logger()
  * @param Returns 1 on success, otherwise 0
 */int BC_Logger::log_event(const char event[])
 {
+	WaitForSingleObject(mutex_lock, INFINITE);
+	/** CRITICAL SECTION ENTRY */
+	
 	/* String to hold date and time (date/time string) */
 	char *dts = (char*) calloc(25, sizeof(char));
 	/* String to hold date, time, microseconds, and event (full string) */
@@ -68,9 +71,8 @@ BC_Logger::~BC_Logger()
 	strcat_s(fs, fs_size, "\n");
 
 	/* Write event to log file */
-	WaitForSingleObject(mutex_lock, INFINITE);
-	/** CRITICAL SECTION ENTRY */
 	fwrite(fs, sizeof(char), strlen(fs), lfp);
+
 	/** CRITICAL SECTION EXIT */
 	ReleaseMutex(mutex_lock);
 

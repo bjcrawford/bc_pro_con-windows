@@ -15,7 +15,6 @@
 
 #include <random>
 #include <stdlib.h>
-#include <time.h>
 #include <windows.h>
 
 #include "../BC_Buffer/BC_Buffer.hpp"

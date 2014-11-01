@@ -39,7 +39,7 @@ BC_Producer::~BC_Producer()
 }
 
 /**
- * Produces a pseudo-randomly generated number between 0 and 9999,
+ * Produces a pseudo-randomly generated number between 0 and 99,
  * stores its value in dynamically allocated memory, inserts a 
  * pointer to the value into the buffer, and logs the event with
  * logger.
@@ -54,8 +54,7 @@ void BC_Producer::produce()
 	*item = dist(gen);
 	int temp = *item;
 	buffer->insert((void*) item);
-	sprintf_s(event, 65, "Pro  %d: %d produced", 
-		      this->id, temp);
+	sprintf_s(event, 65, "Pro  %d: %d produced", this->id, temp);
 	logger->log_event(event);
 	free(event);
 }
