@@ -7,7 +7,18 @@
  *  Prof: Kwatny
  *  TAs: Liang and Casey
  *  Date: 2014-10-18
- *  Description: 
+ *  Description: This file contains the main function of the solution
+ *  to the producer/consumer problem. The solution consists of an object
+ *  oriented design which uses shared objects (the buffer and event logger)
+ *  to acheive synchronization between the producers and consumers. This 
+ *  solution allows the user to specify the values of certain program
+ *  variables such as the size of the buffer, number of producers and 
+ *  consumers to use, the number of produtions and consumptions for each
+ *  producer and consumer to make, and the delay between productions and
+ *  consumptions. The events occuring (insertions and removals from the 
+ *  buffer) will be recorded to a file specified by the user. For buffer
+ *  sizes of 10 or fewer, the buffer will be visualized with the event
+ *  log file. This program was written for use in Windows.
 */
 
 #include "BC_Buffer/BC_Buffer.hpp"
@@ -60,8 +71,6 @@ int main(int argc, char **argv)
 	BC_Buffer *buffer;       /**< Pointer to the shared buffer object */
 	BC_Producer **producer;  /**< Array of pointers to producer objects */
 	BC_Consumer **consumer;  /**< Array of pointers to consumer objects */
-	//DWORD *pro_threads_ids;  /**< Array of producer ids */
-	//DWORD *con_threads_ids;  /**< Array of consumer ids */
 	HANDLE *pro_threads;     /**< Array of producer threads */
 	HANDLE *con_threads;     /**< Array of consumer threads */
 
@@ -91,11 +100,9 @@ int main(int argc, char **argv)
 	std::cout << "\nPlease enter a name for the log file: ";
 	std::cin >> log_file;
 
-	visual = (buffer_size <= 10) ? 1 : 0;
-
 	/** Instantiate logger and buffer objects */
 	logger = new BC_Logger(log_file.c_str());
-	buffer = new BC_Buffer(buffer_size, logger, visual);
+	buffer = new BC_Buffer(buffer_size, logger, (buffer_size <= 10) ? 1 : 0);
 
 	/** Instantiate arrays of producers and consumers */
 	producer = new BC_Producer*[num_producers];
@@ -105,11 +112,9 @@ int main(int argc, char **argv)
 	pro_threads = (HANDLE*) calloc(num_producers, sizeof(HANDLE));
 	con_threads = (HANDLE*) calloc(num_consumers, sizeof(HANDLE));
 
-	/** Instantiate individual producers */
+	/** Instantiate individual producers and consumers */
 	for(i = 0; i < num_producers; i++)
 		producer[i] = new BC_Producer(i, buffer, logger);
-	
-	/** Instantiate individual consumers */
 	for(i = 0; i < num_consumers; i++)
 		consumer[i] = new BC_Consumer(i, buffer, logger);
 	
@@ -146,7 +151,13 @@ int main(int argc, char **argv)
 		delete(producer[i]);
 	for(i = 0; i < num_consumers; i++)
 		delete(consumer[i]);
-
+	delete(producer);
+	delete(consumer);
+	free(pro_threads);
+	free(con_threads);
+	
+	std::cout << "Log results saved in file " << log_file << "\n";
+	
 	std::cout << "Main thread finished\n";
 
 	return EXIT_SUCCESS;
@@ -199,6 +210,7 @@ DWORD WINAPI produce(LPVOID args)
 		Sleep(p_args->delay);
 		p_args->producer->produce();
 	}
+	free(p_args);
 
 	return 0;
 }
@@ -218,6 +230,7 @@ DWORD WINAPI consume(LPVOID args)
 		Sleep(c_args->delay);
 		c_args->consumer->consume();
 	}
+	free(c_args)
 
 	return 0;
 }
